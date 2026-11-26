@@ -389,16 +389,36 @@
                     </div>
                 </div>
             `;
+        }function buildImageBox(item) {
+            const dotIdx = item.img.lastIndexOf('.');
+            const baseName = dotIdx > -1 ? item.img.slice(0, dotIdx) : item.img;
+            const itemName = pickText(item.name);
+            return `
+                <div class="relative w-full aspect-square sm:aspect-auto sm:h-44 bg-white border-b border-slate-200 flex items-center justify-center overflow-hidden">
+                    <img
+                        src="${item.img}"
+                        alt="${itemName}"
+                        data-fallback-step="0"
+                        onerror="handleImgError(this, '${baseName}')"
+                        loading="lazy"
+                        class="w-full h-full object-cover"
+                    />
+                    <div class="hidden flex-col items-center justify-center text-center p-3 text-slate-400 select-none">
+                        <i class="fa-regular fa-image text-2xl mb-1 text-slate-300"></i>
+                        <span class="text-[11px] font-bold text-slate-500" dir="ltr">${item.img}</span>
+                    </div>
+                </div>
+            `;
         }
 
         function buildPizzaSizeRow(itemId, sizeCode, label, price) {
             const sizeKey = `${itemId}__${sizeCode}`;
             const currencyText = tr('currency', 'ج.م');
             return `
-                <div class="flex items-center justify-between gap-2 bg-white border border-slate-200 rounded-xl px-3 py-2">
-                    <div class="flex items-center gap-2">
-                        <span class="text-xs font-extrabold text-slate-900">${label}</span>
-                        <span class="text-xs font-black text-marasy-red bg-red-50 border border-red-100 px-2 py-0.5 rounded-md">${price} ${currencyText}</span>
+                <div class="flex flex-col sm:flex-row items-center justify-between gap-1.5 sm:gap-2 bg-white border border-slate-200 rounded-xl px-2 sm:px-3 py-1.5 sm:py-2">
+                    <div class="flex items-center justify-between sm:justify-start w-full sm:w-auto gap-1.5 sm:gap-2">
+                        <span class="text-[11px] sm:text-xs font-extrabold text-slate-900">${label}</span>
+                        <span class="text-[11px] sm:text-xs font-black text-marasy-red bg-red-50 border border-red-100 px-1.5 sm:px-2 py-0.5 rounded-md whitespace-nowrap">${price} ${currencyText}</span>
                     </div>
                     ${buildQtyCounter(sizeKey)}
                 </div>
@@ -437,24 +457,24 @@
                     </div>
                 `;
 
-                let cardsHTML = `<div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5 bg-white">`;
+                let cardsHTML = `<div class="grid grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-5 bg-white">`;
 
                 section.items.forEach(item => {
                     const imageBox = buildImageBox(item);
                     const itemName = pickText(item.name);
                     const specialBadge = item.special
-                        ? `<span class="inline-block text-[10px] bg-marasy-red text-white px-2 py-0.5 rounded-full mx-1.5 font-bold align-middle">${recommendedText}</span>`
+                        ? `<span class="inline-block text-[9px] sm:text-[10px] bg-marasy-red text-white px-1.5 sm:px-2 py-0.5 rounded-full mx-1 sm:mx-1.5 font-bold align-middle">${recommendedText}</span>`
                         : '';
 
                     if (section.type === 'pizza') {
                         cardsHTML += `
                             <article class="bg-white border border-slate-200 rounded-2xl overflow-hidden shadow-sm hover:shadow-md transition flex flex-col justify-between">
                                 ${imageBox}
-                                <div class="p-4 bg-white flex-1 flex flex-col justify-between gap-3">
-                                    <h3 class="font-extrabold text-slate-900 text-base leading-snug bg-white">
+                                <div class="p-2.5 sm:p-4 bg-white flex-1 flex flex-col justify-between gap-2 sm:gap-3">
+                                    <h3 class="font-extrabold text-slate-900 text-xs sm:text-base leading-snug bg-white">
                                         ${itemName} ${specialBadge}
                                     </h3>
-                                    <div class="flex flex-col gap-2 pt-2 border-t border-slate-100">
+                                    <div class="flex flex-col gap-1.5 sm:gap-2 pt-2 border-t border-slate-100">
                                         ${buildPizzaSizeRow(item.id, 'm', tr('size_m', 'وسط (M)'), item.m)}
                                         ${buildPizzaSizeRow(item.id, 'l', tr('size_l', 'كبير (L)'), item.l)}
                                         ${buildPizzaSizeRow(item.id, 'xl', tr('size_xl', 'عائلي (XL)'), item.xl)}
@@ -466,19 +486,39 @@
                         cardsHTML += `
                             <article class="bg-white border border-slate-200 rounded-2xl overflow-hidden shadow-sm hover:shadow-md transition flex flex-col justify-between">
                                 ${imageBox}
-                                <div class="p-4 bg-white flex-1 flex flex-col justify-between gap-3">
-                                    <div class="flex items-center justify-between gap-2">
-                                        <h3 class="font-extrabold text-slate-900 text-sm sm:text-base leading-snug bg-white">
-                                            ${itemName} ${specialBadge}
-                                        </h3>
-                                        ${buildQtyCounter(item.id)}
+                                <div class="p-2.5 sm:p-4 bg-white flex-1 flex flex-col justify-between gap-2.5 sm:gap-3">
+                                    
+                                    <!-- تخطيط الموبايل: الاسم وبجانبه السعر، وتحتهما العداد -->
+                                    <div class="flex sm:hidden flex-col justify-between flex-1 gap-2.5">
+                                        <div class="flex items-start justify-between gap-1.5">
+                                            <h3 class="font-extrabold text-slate-900 text-xs leading-snug bg-white">
+                                                ${itemName} ${specialBadge}
+                                            </h3>
+                                            <span class="text-[11px] font-black text-marasy-red bg-red-50 border border-red-100 px-1.5 py-0.5 rounded-md whitespace-nowrap shrink-0">
+                                                ${item.price} ${currencyText}
+                                            </span>
+                                        </div>
+                                        <div class="flex items-center justify-center pt-2 border-t border-slate-100">
+                                            ${buildQtyCounter(item.id)}
+                                        </div>
                                     </div>
-                                    <div class="flex items-center justify-between pt-2 border-t border-slate-100">
-                                        <span class="text-xs text-slate-500 font-bold">${priceLabel}</span>
-                                        <span class="text-xs sm:text-sm font-black text-slate-900 bg-white border border-slate-200 px-3 py-1 rounded-lg whitespace-nowrap">
-                                            ${item.price} ${currencyText}
-                                        </span>
+
+                                    <!-- تخطيط الديسكتوب والتابلت: ثابت بدون أي تغيير -->
+                                    <div class="hidden sm:flex flex-col justify-between flex-1 gap-3">
+                                        <div class="flex items-center justify-between gap-2">
+                                            <h3 class="font-extrabold text-slate-900 text-base leading-snug bg-white">
+                                                ${itemName} ${specialBadge}
+                                            </h3>
+                                            ${buildQtyCounter(item.id)}
+                                        </div>
+                                        <div class="flex items-center justify-between pt-2 border-t border-slate-100">
+                                            <span class="text-xs text-slate-500 font-bold">${priceLabel}</span>
+                                            <span class="text-sm font-black text-slate-900 bg-white border border-slate-200 px-3 py-1 rounded-lg whitespace-nowrap">
+                                                ${item.price} ${currencyText}
+                                            </span>
+                                        </div>
                                     </div>
+
                                 </div>
                             </article>
                         `;
